@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradezone Widget Integration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .code-block {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        /* Widget iframe styling */
+        #widget-iframe {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 600px;
+            border: none;
+            border-radius: 24px;
+            z-index: 9999;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        /* Class to remove shadow when widget is hidden */
+        #widget-iframe.no-shadow {
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tradezone Widget Integration Example</h1>
+        <p>This page demonstrates how to integrate the Tradezone AI Assistant widget and handle the shadow removal when the widget is hidden.</p>
+        
+        <h2>Step 1: Add the Widget to Your HTML</h2>
+        <div class="code-block">
+            <pre><code>&lt;iframe 
+  id="widget-iframe"
+  src="https://landing.rezult.co/trade/widget.html" 
+  style="position:fixed; bottom:20px; right:20px; width:400px; height:600px; border:none; border-radius:24px; z-index:9999;"&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+        
+        <h2>Step 2: Add Message Listener for Link Handling and Widget State</h2>
+        <div class="code-block">
+            <pre><code>&lt;script&gt;
+// Listen for messages from the widget iframe
+window.addEventListener('message', function(event) {
+    // Check if the message is from our widget
+    if (event.data && (event.data.type === 'widgetShown' || event.data.type === 'widgetHidden')) {
+        const widgetIframe = document.getElementById('widget-iframe');
+        
+        // Handle shadow removal based on widget state
+        if (event.data.type === 'widgetHidden' && event.data.removeShadow) {
+            // Remove shadow when widget is hidden
+            widgetIframe.classList.add('no-shadow');
+            console.log('Widget hidden - shadow removed');
+        } else {
+            // Add shadow back when widget is shown
+            widgetIframe.classList.remove('no-shadow');
+            console.log('Widget shown - shadow restored');
+        }
+    }
+    
+    // Handle link opening
+    if (event.data && event.data.type === 'openLink' && event.data.url) {
+        window.open(event.data.url, '_blank');
+    }
+});
+&lt;/script&gt;</code></pre>
+        </div>
+        
+        <h2>Live Example</h2>
+        <p>Below is the live example of the widget integration. You can interact with it to see how it works:</p>
+        <ul>
+            <li>Click the toggle button to show/hide the widget</li>
+            <li>Notice how the shadow is removed when the widget is hidden</li>
+            <li>Try the chat functionality</li>
+            <li>See how links in chat messages open in the parent window</li>
+        </ul>
+    </div>
+    
+    <!-- Widget iframe -->
+    <iframe id="widget-iframe" src="widget.html" frameborder="0" allow="microphone"></iframe>
+    
+    <script>
+        // Listen for messages from the widget iframe
+        window.addEventListener('message', function(event) {
+            // Check if the message is from our widget
+            if (event.data && (event.data.type === 'widgetShown' || event.data.type === 'widgetHidden')) {
+                const widgetIframe = document.getElementById('widget-iframe');
+                
+                // Handle shadow removal based on widget state
+                if (event.data.type === 'widgetHidden' && event.data.removeShadow) {
+                    // Remove shadow when widget is hidden
+                    widgetIframe.classList.add('no-shadow');
+                    console.log('Widget hidden - shadow removed');
+                } else {
+                    // Add shadow back when widget is shown
+                    widgetIframe.classList.remove('no-shadow');
+                    console.log('Widget shown - shadow restored');
+                }
+            }
+            
+            // Handle link opening
+            if (event.data && event.data.type === 'openLink' && event.data.url) {
+                window.open(event.data.url, '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
