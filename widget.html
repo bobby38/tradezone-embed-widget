@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradezone AI Assistant</title>
+    <style id="initial-style">
+        /* Initial transparent style to prevent flash of background */
+        html, body {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+    </style>
+    <!-- External CSS for the widget -->
+    <link rel="stylesheet" href="https://landing.rezult.co/trade/widget-style.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Additional styles for the close button */
+        .close-call-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff5555;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10001;
+            display: none;
+        }
+        
+        .close-call-button:hover {
+            background-color: #ff0000;
+        }
+        
+        /* Make sure ElevenLabs widget doesn't hide chat unless explicitly called */
+        elevenlabs-convai {
+            display: none !important;
+        }
+        
+        elevenlabs-convai.show-widget {
+            display: block !important;
+        }
+        
+        /* Toggle button for showing/hiding the widget */
+        .widget-toggle-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #8a2be2, #6a0dad);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            box-shadow: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: none;
+        }
+        
+        .widget-toggle-button:hover {
+            background: linear-gradient(135deg, #9b30ff, #7b1fa2);
+        }
+        
+        /* No animation or shadow when widget is hidden */
+        .widget-toggle-button.hidden {
+            box-shadow: none !important;
+        }
+        
+        /* Show plus sign when hidden (by showing the plus-line) */
+        .widget-toggle-button.hidden .plus-line {
+            opacity: 1;
+        }
+        
+        /* Hide plus sign when visible (minus sign only) */
+        .widget-toggle-button:not(.hidden) .plus-line {
+            opacity: 0;
+        }
+        
+        .widget-toggle-button .plus-line {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Hide all content when widget is hidden */
+        .content-hidden {
+            display: none !important;
+        }
+        
+        /* Override any box-shadow when widget is hidden */
+        body.widget-hidden .widget-container {
+            box-shadow: none !important;
+        }
+        
+        /* Make body and html transparent when widget is hidden */
+        html, body.widget-hidden {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+        
+        body.widget-hidden {
+            opacity: 1;
+        }
+        
+        /* Only set background when widget is visible */
+        body:not(.widget-hidden) {
+            background-color: white;
+        }
+        
+        /* Mobile responsiveness - only adjust specific elements */
+        @media (max-width: 768px) {
+            .welcome-view, .chat-view {
+                padding: 15px !important;
+            }
+            
+            .welcome-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .talk-button, .call-button {
+                padding: 10px 15px !important;
+                font-size: 14px !important;
+            }
+            
+            .video-container {
+                height: 180px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- The Widget Container -->
+    <div class="widget-container">
+        <!-- Welcome View -->
+        <div class="welcome-view" id="welcomeView">
+            <h1 class="welcome-title">Welcome!</h1>
+            
+            <!-- Video Section -->
+            <div class="video-container">
+                <video 
+                  class="avatar-video" 
+                  id="avatarVideo"
+                  src="https://videostream44.b-cdn.net/tradezone-welcome-avatar-2.mp4" 
+                  autoplay 
+                  muted 
+                ></video>
+                <div class="video-overlay" id="playButton">
+                    <div class="play-icon"></div>
+                </div>
+            </div>
+            
+            <!-- Chat Button -->
+            <button class="talk-button" id="talkButton">CHAT NOW</button>
+            
+            <!-- Call Button -->
+            <button class="call-button" id="startCallButton">
+                <svg class="call-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                    <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2c0-4.97-4.03-9-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/>
+                </svg>
+                START A CALL
+            </button>
+        </div>
+
+        <!-- Chat View -->
+        <div class="chat-view" id="chatView">
+            <button class="back-button" id="backButton">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </button>
+            <div class="thinking-indicator" id="thinkingIndicator">
+                <span>AI is thinking</span>
+                <div class="thinking-dots">
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="input-container">
+                <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+                <button class="send-button" id="sendButton">
+                    <svg class="send-icon" viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Close button for call widget -->
+    <button class="close-call-button" id="closeCallButton">×</button>
+    
+    <!-- Toggle button for showing/hiding the widget -->
+    <button class="widget-toggle-button" id="widgetToggleButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="16" class="plus-line"></line>
+        </svg>
+    </button>
+    
+    <!-- Hidden ElevenLabs Widget -->
+    <elevenlabs-convai agent-id="agent_01jzzev7k9e6d9dqsj507s9yz2" button-text="Start a call" header-text="Need help?" style="position: fixed; z-index: 10000;"></elevenlabs-convai>
+    <div id="hidden-chat-container" style="display: none;"></div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Widget JavaScript -->
+    <script src="widget-script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle one-time video playback
+            const avatarVideo = document.getElementById('avatarVideo');
+            
+            // Check if video has been played before
+            const videoPlayed = localStorage.getItem('video-played') === 'true';
+            
+            if (videoPlayed) {
+                // If video was played before, show the last frame
+                avatarVideo.currentTime = avatarVideo.duration || 5; // Set to end or 5 seconds if duration unknown
+                avatarVideo.pause();
+            } else {
+                // Play video once and mark as played
+                avatarVideo.addEventListener('ended', function() {
+                    localStorage.setItem('video-played', 'true');
+                    // No need to loop
+                });
+            }
+            // Widget toggle functionality
+            const widgetContainer = document.querySelector('.widget-container');
+            const widgetToggleButton = document.getElementById('widgetToggleButton');
+            const allContent = document.querySelectorAll('body > *:not(#widgetToggleButton)');
+            
+            // Function to hide all content except toggle button
+            function hideAllContent() {
+                allContent.forEach(element => {
+                    element.classList.add('content-hidden');
+                });
+                widgetToggleButton.classList.add('hidden');
+                document.body.classList.add('widget-hidden');
+            }
+            
+            // Function to show all content
+            function showAllContent() {
+                allContent.forEach(element => {
+                    element.classList.remove('content-hidden');
+                });
+                widgetToggleButton.classList.remove('hidden');
+                document.body.classList.remove('widget-hidden');
+            }
+            
+            // Check if widget was previously hidden
+            const widgetHidden = localStorage.getItem('widget-hidden') === 'true';
+            if (widgetHidden) {
+                hideAllContent();
+                // Notify parent to remove iframe shadow on initial load
+                notifyParent('widgetHidden', { removeShadow: true });
+            } else {
+                // Remove initial transparent style if widget is visible
+                const initialStyle = document.getElementById('initial-style');
+                if (initialStyle) {
+                    initialStyle.remove();
+                }
+                document.body.classList.remove('widget-hidden');
+                // Notify parent to keep iframe shadow on initial load
+                notifyParent('widgetShown', { removeShadow: false });
+            }
+            
+            // Toggle widget visibility when button is clicked
+            widgetToggleButton.addEventListener('click', function() {
+                if (widgetContainer.classList.contains('content-hidden')) {
+                    showAllContent();
+                    localStorage.setItem('widget-hidden', 'false');
+                    // Notify parent that widget is shown - include instruction to add shadow back
+                    notifyParent('widgetShown', { removeShadow: false });
+                } else {
+                    hideAllContent();
+                    localStorage.setItem('widget-hidden', 'true');
+                    // Notify parent that widget is hidden - include instruction to remove shadow
+                    notifyParent('widgetHidden', { removeShadow: true });
+                }
+            });
+            // Get references to elements
+            const welcomeView = document.getElementById('welcomeView');
+            const chatView = document.getElementById('chatView');
+            const talkButton = document.getElementById('talkButton');
+            const startCallButton = document.getElementById('startCallButton');
+            const backButton = document.getElementById('backButton');
+            const closeCallButton = document.getElementById('closeCallButton');
+            const elevenLabsWidget = document.querySelector('elevenlabs-convai');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Function to notify parent window
+            function notifyParent(messageType, data = {}) {
+                if (window.parent) {
+                    window.parent.postMessage({
+                        type: messageType,
+                        ...data
+                    }, '*');
+                }
+            }
+            
+            // Show chat when talk button is clicked
+            talkButton.addEventListener('click', function() {
+                welcomeView.style.display = 'none';
+                chatView.style.display = 'flex';
+                
+                // Notify parent that chat was clicked
+                notifyParent('chatClicked');
+            });
+            
+            // Show call widget when start call button is clicked
+            startCallButton.addEventListener('click', function() {
+                // Show ElevenLabs widget
+                elevenLabsWidget.classList.add('show-widget');
+                
+                // Show close button
+                closeCallButton.style.display = 'block';
+                
+                // Notify parent that call widget is shown
+                notifyParent('callWidgetShown');
+            });
+            
+            // Go back to welcome view when back button is clicked
+            backButton.addEventListener('click', function() {
+                chatView.style.display = 'none';
+                welcomeView.style.display = 'flex';
+            });
+            
+            // Close call widget when close button is clicked
+            closeCallButton.addEventListener('click', function() {
+                // Hide ElevenLabs widget
+                elevenLabsWidget.classList.remove('show-widget');
+                
+                // Hide close button
+                closeCallButton.style.display = 'none';
+                
+                // Notify parent that call widget is hidden
+                notifyParent('callWidgetHidden');
+            });
+            
+            // Listen for messages from parent window
+            window.addEventListener('message', function(event) {
+                // Handle close call widget message
+                if (event.data && event.data.type === 'closeCallWidget') {
+                    // Hide ElevenLabs widget
+                    elevenLabsWidget.classList.remove('show-widget');
+                    
+                    // Hide close button
+                    closeCallButton.style.display = 'none';
+                }
+            });
+            
+            // Make all links open in parent window
+            document.addEventListener('click', function(e) {
+                // Check if clicked element is a link or has a link parent
+                let target = e.target;
+                while (target && target !== document) {
+                    if (target.tagName === 'A' && target.href) {
+                        e.preventDefault();
+                        
+                        // Notify parent to open link
+                        notifyParent('openLink', { url: target.href });
+                        return;
+                    }
+                    target = target.parentNode;
+                }
+            });
+            
+            // Process chat messages to make links open in parent window
+            const originalAppendChild = Element.prototype.appendChild;
+            Element.prototype.appendChild = function() {
+                const result = originalAppendChild.apply(this, arguments);
+                
+                // If this is the chat messages container and a new message was added
+                if (this === chatMessages && arguments[0] && arguments[0].querySelectorAll) {
+                    // Find all links in the new message
+                    const links = arguments[0].querySelectorAll('a');
+                    links.forEach(link => {
+                        link.setAttribute('target', '_blank');
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            notifyParent('openLink', { url: this.href });
+                        });
+                    });
+                }
+                
+                return result;
+            };
+        });
+    </script>
+</body>
+</html>
