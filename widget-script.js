@@ -5,10 +5,33 @@ import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bun
 // Create a custom renderer for the 'marked' library
 const renderer = new marked.Renderer();
 
-// Override the 'link' function to add target="_top"
+// Override the 'link' function to add target="_top" and handle malformed links
 // This forces any link clicked inside the iframe to open in the main browser window.
 renderer.link = (href, title, text) => {
-  return `<a target="_top" href="${href}" title="${title}">${text}</a>`;
+  // Handle object URLs that come from n8n responses
+  if (href && typeof href === 'object') {
+    if (href.url) href = href.url;
+    else if (href.href) href = href.href;
+    else if (href.link) href = href.link;
+    else href = '#';
+  }
+  
+  // Fix undefined or invalid href values
+  if (!href || href === 'undefined' || href === 'null' || href === '[object Object]') {
+    href = '#';
+  }
+  
+  // Fix undefined or invalid text values
+  if (!text || text === 'undefined' || text === 'null' || text === '[object Object]') {
+    text = 'View Product';
+  }
+  
+  return `<a target="_top" href="${href}" title="${title || ''}">${text}</a>`;
+};
+
+// Override image renderer to set max width to 150px
+renderer.image = (href, title, text) => {
+  return `<img src="${href}" alt="${text || ''}" title="${title || ''}" style="max-width: 150px; max-height: 150px; width: auto; height: auto; object-fit: contain;" />`;
 };
 
 // Use this custom renderer when parsing markdown
@@ -176,12 +199,56 @@ class TradezoneWidget {
     avatar.textContent = isUser ? 'U' : 'AI';
     const content = document.createElement('div');
     content.className = 'message-content';
+    
+    // Convert literal \n to actual newlines and handle paragraph breaks
+    let processedText = text.replace(/\\n/g, '\n');
+    
+    // Ensure double newlines create proper paragraph breaks for markdown
+    // Replace multiple newlines with double newlines for proper paragraph spacing
+    processedText = processedText.replace(/\n\n+/g, '\n\n');
+    
+    // Ensure single newlines within paragraphs are preserved
+    processedText = processedText.replace(/(?<!\n)\n(?!\n)/g, '  \n');
+    
     // The 'marked' function will now use the custom renderer we defined at the top of the file
-    content.innerHTML = marked.parse(text);
+    content.innerHTML = marked.parse(processedText);
+    
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(content);
     this.chatMessages.appendChild(messageDiv);
+    
+    // Process any remaining issues with links and images after DOM insertion
+    this.processLinksAndImages(content);
+    
     this.scrollToBottom();
+  }
+  
+  processLinksAndImages(content) {
+    // Fix any remaining link issues
+    const links = content.querySelectorAll('a');
+    links.forEach(link => {
+      if (!link.href || link.href.includes('undefined') || link.href.includes('[object')) {
+        link.href = '#';
+      }
+      if (!link.textContent || link.textContent.includes('undefined') || link.textContent.includes('[object')) {
+        link.textContent = 'View Product';
+      }
+    });
+    
+    // Ensure all images are properly sized
+    const images = content.querySelectorAll('img');
+    images.forEach(img => {
+      img.style.maxWidth = '150px';
+      img.style.maxHeight = '150px';
+      img.style.width = 'auto';
+      img.style.height = 'auto';
+      img.style.objectFit = 'contain';
+      
+      // Hide broken images
+      img.onerror = function() {
+        this.style.display = 'none';
+      };
+    });
   }
 
   showChatArea() {
