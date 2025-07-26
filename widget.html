@@ -98,46 +98,6 @@
         .content-hidden {
             display: none !important;
         }
-        
-        /* Override any box-shadow when widget is hidden */
-        body.widget-hidden .widget-container {
-            box-shadow: none !important;
-        }
-        
-        /* Make body and html transparent when widget is hidden */
-        html, body.widget-hidden {
-            background-color: transparent !important;
-            background: transparent !important;
-        }
-        
-        body.widget-hidden {
-            opacity: 1;
-        }
-        
-        /* Only set background when widget is visible */
-        body:not(.widget-hidden) {
-            background-color: white;
-        }
-        
-        /* Mobile responsiveness - only adjust specific elements */
-        @media (max-width: 768px) {
-            .welcome-view, .chat-view {
-                padding: 15px !important;
-            }
-            
-            .welcome-title {
-                font-size: 1.5rem !important;
-            }
-            
-            .talk-button, .call-button {
-                padding: 10px 15px !important;
-                font-size: 14px !important;
-            }
-            
-            .video-container {
-                height: 180px !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -145,51 +105,63 @@
     <div class="widget-container">
         <!-- Welcome View -->
         <div class="welcome-view" id="welcomeView">
-            <h1 class="welcome-title">Welcome!</h1>
-            
-            <!-- Video Section -->
-            <div class="video-container">
-                <video 
-                  class="avatar-video" 
-                  id="avatarVideo"
-                  src="https://videostream44.b-cdn.net/tradezone-welcome-avatar-2.mp4" 
-                  autoplay 
-                  muted 
-                ></video>
-                <div class="video-overlay" id="playButton">
-                    <div class="play-icon"></div>
+            <div class="avatar-container">
+                <video class="avatar-video" id="avatarVideo" autoplay muted loop>
+                    <source src="https://landing.rezult.co/trade/avatar-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <button class="play-button" id="playButton">
+                    <svg class="play-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="welcome-content">
+                <h2>Hi, I'm Izacc!</h2>
+                <p>Your TradeZone AI assistant. I can help you find gaming gear, gadgets, and answer questions about our products.</p>
+                <div class="action-buttons">
+                    <button class="talk-button" id="talkButton">
+                        <svg class="chat-icon" viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                        Start Chat
+                    </button>
+                    <button class="call-button" id="startCallButton">
+                        <svg class="call-icon" viewBox="0 0 24 24">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        Voice Call
+                    </button>
                 </div>
             </div>
-            
-            <!-- Chat Button -->
-            <button class="talk-button" id="talkButton">CHAT NOW</button>
-            
-            <!-- Call Button -->
-            <button class="call-button" id="startCallButton">
-                <svg class="call-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
-                    <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2c0-4.97-4.03-9-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/>
-                </svg>
-                START A CALL
-            </button>
         </div>
 
         <!-- Chat View -->
-        <div class="chat-view" id="chatView">
-            <button class="back-button" id="backButton">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                </svg>
-            </button>
-            <div class="thinking-indicator" id="thinkingIndicator">
-                <span>AI is thinking</span>
-                <div class="thinking-dots">
-                    <div class="thinking-dot"></div>
-                    <div class="thinking-dot"></div>
-                    <div class="thinking-dot"></div>
+        <div class="chat-view" id="chatView" style="display: none;">
+            <div class="chat-header">
+                <button class="back-button" id="backButton">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <div class="chat-title">
+                    <h3>Chat with Izacc</h3>
+                    <span class="online-status">Online</span>
                 </div>
             </div>
+            
             <div class="chat-messages" id="chatMessages"></div>
-            <div class="input-container">
+            
+            <div class="thinking-indicator" id="thinkingIndicator">
+                <div class="thinking-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="thinking-text">Izacc is thinking...</span>
+            </div>
+            
+            <div class="chat-input-container">
                 <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
                 <button class="send-button" id="sendButton">
                     <svg class="send-icon" viewBox="0 0 24 24">
@@ -220,7 +192,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <!-- Widget JavaScript -->
-    <script src="widget-script.js"></script>
+    <script type="module" src="widget-script.js?v=9.0"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
