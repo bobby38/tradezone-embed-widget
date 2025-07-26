@@ -1,77 +1,80 @@
-# TradeZone Embeddable Widget
+# TradeZone Embed Widget
 
-An embeddable AI assistant widget for TradeZone that can be easily integrated into any website.
+A lightweight, embeddable AI assistant widget for TradeZone.sg with chat functionality and ElevenLabs voice integration.
 
 ## Features
 
-- Interactive chat interface with AI assistant
-- Video avatar with one-time playback
-- Toggle button to show/hide the widget
-- Voice call capability using ElevenLabs
-- Responsive design for mobile and desktop
-- Links open in parent window
-- Customizable appearance
+- 🤖 AI-powered chat assistant for product inquiries
+- 🎙️ Voice chat integration with ElevenLabs
+- 📱 Responsive design that works on desktop and mobile
+- 🔗 Smart link parsing and image sizing (150px max)
+- 💬 Markdown support for rich text responses
+- 🎯 Easy iframe embedding
+
+## Files
+
+- `widget.html` - Main widget interface with chat UI
+- `widget-script.js` - Core functionality and chat logic
+- `trade.html` - Demo/example integration page
+- `widget-style.css` - Widget styling (hosted separately)
 
 ## Installation
 
-### 1. Add the widget to your HTML
+### Option 1: Direct Embed (Recommended)
 
-Add the following code to your HTML file where you want the widget to appear:
+Add this iframe to your website:
 
 ```html
 <iframe 
   src="https://landing.rezult.co/trade/widget.html" 
-  style="position:fixed; bottom:20px; right:20px; width:400px; height:600px; border:none; border-radius:24px; z-index:9999;">
+  width="400" 
+  height="600" 
+  frameborder="0"
+  style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
 </iframe>
 ```
 
-### 2. Add message listener for link handling and widget state (optional)
+### Option 2: Self-Hosted
 
+1. Download `widget.html` and `widget-script.js`
+2. Host them on your server
+3. Update the CSS link in `widget.html` to point to your hosted `widget-style.css`
+4. Update webhook URLs in `widget-script.js` if needed
+
+## Configuration
+
+### Webhook URL
+Update the webhook URL in `widget-script.js`:
 ```javascript
-// Listen for messages from the widget iframe
-window.addEventListener('message', function(event) {
-    // Check if the message is from our widget
-    if (event.data && (event.data.type === 'widgetShown' || event.data.type === 'widgetHidden')) {
-        console.log('Widget state changed:', event.data.type);
-    }
-    
-    // Handle link opening
-    if (event.data && event.data.type === 'openLink' && event.data.url) {
-        window.open(event.data.url, '_blank');
-    }
-});
+webhookUrl: 'https://n8.getrezult.com/webhook/cf424bcc-ac90-4fd8-80b9-7292f8d61a6d/chat'
 ```
 
-## Customization
+### ElevenLabs Integration
+Update the agent ID in `widget.html`:
+```html
+<elevenlabs-convai agent-id="your-agent-id"></elevenlabs-convai>
+```
 
-You can customize the widget by modifying the following parameters:
+## Usage
 
-- **Position**: Adjust the `bottom` and `right` values in the iframe style
-- **Size**: Modify the `width` and `height` values in the iframe style
-- **Border radius**: Change the `border-radius` value for rounded corners
+The widget automatically:
+- Loads with a welcome message
+- Handles user chat input
+- Processes markdown responses with proper link and image formatting
+- Integrates voice chat when requested
+- Opens product links in the parent window (breaks out of iframe)
 
-## Widget States
+## Demo
 
-The widget has two states:
-1. **Visible**: Shows the full widget with welcome screen or chat interface
-2. **Hidden**: Only shows a toggle button in the corner
+See `trade.html` for a complete integration example.
 
-The state is persisted in localStorage, so users will see the same state when they return to your site.
+## Browser Support
 
-## Browser Compatibility
-
-The widget is compatible with all modern browsers:
-- Chrome
-- Firefox
-- Safari
-- Edge
-
-## Dependencies
-
-- ElevenLabs Convai Widget for voice calls
-- Marked.js for Markdown rendering
-- N8N Chat API for AI responses
+- Chrome 80+
+- Firefox 75+
+- Safari 13+
+- Edge 80+
 
 ## License
 
-MIT License
+MIT License - Feel free to use and modify for your projects.

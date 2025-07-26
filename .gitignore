@@ -1,0 +1,28 @@
+# System files
+.DS_Store
+.vscode/
+
+# Backup files
+*.bak
+backup_*/
+*-checkpoint-*/
+
+# Node modules and package files (not needed for this widget)
+node_modules/
+package-lock.json
+package.json
+
+# Test and development files
+test-*.html
+link-rendering-test.html
+index-example.html
+index.html
+master.html
+widget-script-clean.js
+widget-script-production.js
+DEPLOY-widget-script.js
+
+# CSS backup (we'll keep only the main one)
+widget-style.css.bak
+widget.html.bak
+widget-script.js.bak
